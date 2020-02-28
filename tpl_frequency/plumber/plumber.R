@@ -1,4 +1,6 @@
 library(pins)
+library(recipes)
+
 board_register("rsconnect", 
                server = "https://colorado.rstudio.com/rsc",
                key = Sys.getenv("CONNECT_API_KEY"))

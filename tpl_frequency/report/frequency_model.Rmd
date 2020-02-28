@@ -1,0 +1,142 @@
+---
+title: "Frequency Model"
+output: bookdown::html_document2
+params:
+  n_folds: 10
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options("pins.progress" = FALSE)
+```
+
+# R Markdown Example
+
+In this document, we illustrate the features below via a simple personal auto frequency risk classification model.
+
+- RMarkdown
+- Parameterized report (in this run, we're using **`r params$n_folds`**-fold cross validation)
+- Basic modeling
+- Serializing and pinning a simple model
+
+```{r load-libs, message=FALSE}
+library(cellar)
+library(tidyverse)
+library(rsample)
+library(recipes)
+library(broom)
+library(carrier)
+library(pins)
+
+# Load helper functions
+source("R/util.R") 
+```
+
+# Data
+
+We use auto third-party liability data from [Cellar](https://cellar.kasa.ai).
+
+```{r data}
+policies <- cellar_pull("fr_tpl2_policies")
+policies <- policies %>% 
+  mutate(
+    num_claims = pmin(num_claims, 4),
+    exposure = pmin(exposure, 1)
+  ) %>% 
+  sample_n(100000)
+glimpse(policies)
+```
+
+# Validation setup
+
+```{r}
+train_test <- initial_split(policies)
+training_data <- training(train_test)
+
+rec <- recipe(
+  num_claims ~ area + vehicle_power + vehicle_age + driver_age + vehicle_brand + exposure,
+  data = training_data
+) %>%
+  step_string2factor(area, vehicle_power, vehicle_brand) %>% 
+  # Bin infrequent categories togther
+  step_other(vehicle_brand, threshold = 0.05) %>% 
+  prep()
+
+ten_fold <- rec %>% 
+  juice() %>% 
+  vfold_cv(v = params$n_folds)
+```
+
+## Run models
+
+Build GLM on each fold, keep track of coefficients and out-of-sample performance metrics.
+
+```{r}
+cv_result <- ten_fold$splits %>% 
+  map(function(split) {
+    analysis_data <- analysis(split)
+    model <- glm(
+      num_claims ~ area + vehicle_power + vehicle_age + driver_age + vehicle_brand,
+      family = poisson(),
+      offset = log(exposure),
+      data = analysis_data
+    )
+    
+    coefs <- tidy(model)
+    assessment_data <- assessment(split)
+    preds <- predict(model, assessment_data, type = "response")
+    actuals <- assessment_data$num_claims
+    deviance_assessment <- mean(poisson()$dev.resids(actuals, preds, 1))
+    
+    list(coefs = coefs, deviance = deviance_assessment)
+  })
+```
+
+# Look at results
+
+Extract relativities into a single data frame
+
+```{r}
+relativities <- cv_result %>% 
+  transpose() %>% 
+  pluck("coefs") %>% 
+  bind_rows(.id = "fold") %>% 
+  mutate(relativity = exp(estimate)) %>% 
+  select(term, relativity, fold)
+```
+
+Make some plots!
+
+```{r vehicle-brand-relativities, fig.cap="Relativities for Vehicle Brand from cross-validation folds."}
+plot_relativities(relativities, "vehicle_brand")
+```
+
+```{r area-relativities, fig.cap="Relativities for Area Code from cross-validation folds."}
+plot_relativities(relativities, "area")
+```
+
+# Train model on all training data and bundle a prediction function
+
+```{r}
+model <- glm(
+  num_claims ~ area + vehicle_power + vehicle_age + driver_age + vehicle_brand,
+  family = poisson(),
+  offset = log(exposure),
+  data = juice(rec)
+)
+
+predict_claim_count <- crate(function(df) {
+  newdata <- recipes::bake(rec, df)
+  stats::predict(model, newdata, type = "response")
+}, rec = rec, model = model)
+```
+
+# Pin the prediction function for others to use
+
+```{r, warning=FALSE}
+board_register("rsconnect",
+  server = "https://colorado.rstudio.com/rsc",
+  key = Sys.getenv("CONNECT_API_KEY"))
+
+pin(predict_claim_count, "predict_tpl_claim_count", board = "rsconnect")
+```

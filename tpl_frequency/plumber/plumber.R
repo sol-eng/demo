@@ -7,6 +7,7 @@ board_register("rsconnect",
 predict_fn <- pin_get("kevin.kuo/predict_tpl_claim_count", board = "rsconnect")
 
 #* @apiTitle Claim Frequency Prediction
+#* @apiDescription Compute expected claim frequency given policy characteristics.
 
 #* Compute expected claim count.
 #* @param area Area code of insured vehicle; A-F.

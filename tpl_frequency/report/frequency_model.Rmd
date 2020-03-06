@@ -20,7 +20,7 @@ In this document, we illustrate the features below via a simple personal auto fr
 - Serializing and pinning a simple model
 
 ```{r load-libs, message=FALSE}
-library(cellar)
+library(cellar) # see download instructions at https://cellar.kasa.ai/
 library(tidyverse)
 library(rsample)
 library(recipes)
@@ -50,16 +50,22 @@ glimpse(policies)
 # Validation setup
 
 ```{r}
+# Split data into training and testing sets
 train_test <- initial_split(policies)
+
+# Extract training data set
 training_data <- training(train_test)
 
+# Create recipe for preprocessing data
 rec <- recipe(
   num_claims ~ area + vehicle_power + vehicle_age + driver_age + vehicle_brand + exposure,
   data = training_data
 ) %>%
+  # Convert strings to factors
   step_string2factor(area, vehicle_power, vehicle_brand) %>% 
-  # Bin infrequent categories togther
+  # Bin infrequent categories together
   step_other(vehicle_brand, threshold = 0.05) %>% 
+  # Estimate required quantities and statistics
   prep()
 
 ten_fold <- rec %>% 

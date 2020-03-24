@@ -20,6 +20,7 @@ In this document, we illustrate the features below via a simple personal auto fr
 - Serializing and pinning a simple model
 
 ```{r load-libs, message=FALSE}
+# remotes::install_github("kasaai/cellar/r")
 library(cellar)
 library(tidyverse)
 library(rsample)

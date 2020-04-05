@@ -10,6 +10,6 @@ This repository hosts various example workflows inspired by insurance use cases.
        - https://colorado.rstudio.com/rsc/connect/#/apps/4641/
     - `plumber/`: Deploys the model from the report above as an API.
        - https://colorado.rstudio.com/rsc/connect/#/apps/4638/
-    - [kasaai/uwdashboard](https://github.com/kasaai/uwdashboard): Automated deployment
-    of an underwriting dashboard powered by Shiny and TensorFlow.
-       - https://colorado.rstudio.com/rsc/uw-dashboard/
+- [kasaai/uwdashboard](https://github.com/kasaai/uwdashboard): Automated deployment 
+of an underwriting dashboard powered by Shiny and TensorFlow.
+    - https://colorado.rstudio.com/rsc/uw-dashboard/

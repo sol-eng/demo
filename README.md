@@ -13,3 +13,10 @@ This repository hosts various example workflows inspired by insurance use cases.
 - [kasaai/uwdashboard](https://github.com/kasaai/uwdashboard): Automated deployment 
 of an underwriting dashboard powered by Shiny and TensorFlow.
     - https://colorado.rstudio.com/rsc/uw-dashboard/
+
+## Health
+
+- [kasaai/largemedclaims](https://github.com/kasaai/largemedclaims): RMarkdown
+and TensorFlow-powered plumber API for health claims analysis.
+    - https://colorado.rstudio.com/rsc/med-claims-summary/sample_report.html
+    - https://colorado.rstudio.com/rsc/large_claims_model/

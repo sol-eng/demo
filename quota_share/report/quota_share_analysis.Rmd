@@ -1,0 +1,60 @@
+---
+title: "Quota Share Example"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# remotes::install_github("kasaai/xs")
+```
+
+## Example!
+
+Load some packages
+
+```{r, message=FALSE}
+library(xs)
+library(tidyverse)
+library(DT)
+```
+
+Make us a treaty
+
+```{r}
+treaty <- quota_share(ceded = 0.6, ceding_commission = 0.1)
+```
+
+how about some policies
+
+```{r}
+policies <- data.frame(
+  policy_id = 1:100,
+  premium = rnorm(100, mean = 3000, sd = 1000)
+)
+head(policies)
+```
+
+Analyze premiums
+
+```{r}
+treaty %>% 
+  treaty_apply_premiums(policies)
+```
+
+make some claims
+
+```{r}
+claims <- data.frame(
+  claim_id = 1:50,
+  loss = rgamma(50, 10, 0.001)
+)
+
+DT::datatable(claims)
+```
+
+Analyze them claims!
+
+```{r}
+treaty %>% 
+  treaty_apply_claims(claims)
+```

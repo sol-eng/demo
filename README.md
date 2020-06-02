@@ -20,3 +20,11 @@ of an underwriting dashboard powered by Shiny and TensorFlow.
 and TensorFlow-powered plumber API for health claims analysis.
     - https://colorado.rstudio.com/rsc/med-claims-summary/sample_report.html
     - https://colorado.rstudio.com/rsc/large_claims_model/
+
+## Reinsurance
+
+- `quota_share/`: Very basic example illustrating a trivial treaty
+    - `report/`: Minimal RMarkdown report
+        - https://colorado.rstudio.com/rsc/quota_share_report/
+    - `app/`: Minimal Shiny app
+        - https://colorado.rstudio.com/rsc/quota_share_app/

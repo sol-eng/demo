@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Load some packages
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(xs)
 library(tidyverse)
 library(DT)

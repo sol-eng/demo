@@ -46,17 +46,13 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
-  ceding_commission_rate <- reactive(input$ceded_commission)
-  ceded_prop <- reactive(input$ceded)
-  premiums <- reactive(data.frame(premium = input$premium))
-  
   output$analysis <- renderText({
     
-    treaty <- quota_share(ceded_prop(), ceding_commission_rate())
-    result <- treaty %>% 
-      treaty_apply_premiums(premiums())
+    treaty <- quota_share(input$ceded, input$ceded_commission)
     
-    # generate bins based on input$bins from ui.R
+    result <- treaty %>% 
+      treaty_apply_premiums(data.frame(premium = input$premium))
+
     capture.output(result)
   }, sep = "\n")
 }
